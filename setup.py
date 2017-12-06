@@ -8,6 +8,7 @@ setup(
     name='apispec-djangorestframework',
     version=".".join(map(str, VERSION)),
     packages=find_packages(),
+    include_package_data=True,
 
     author='Concentric Sky',
     author_email='django@concentricsky.com',
