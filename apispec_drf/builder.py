@@ -155,6 +155,7 @@ class APISpecDRF(APISpec, APISpecDRFBuilder):
         #         'oauth2': [],
         #     }
         # ]
+        ret['security'] = []
         return ret
 
     def scrape_serializers(self):
@@ -259,6 +260,8 @@ class APISpecDRF(APISpec, APISpecDRFBuilder):
             spec['security'] = [
                 {"oauth2": valid_scopes}
             ]
+        else:
+            spec['security'] = []
 
         return spec
 
