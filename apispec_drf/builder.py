@@ -9,6 +9,7 @@ from importlib import import_module
 from apispec import APISpec
 from django.apps import apps
 from django.conf import settings
+from django.urls import reverse
 from rest_framework.fields import Field
 from rest_framework.schemas import EndpointInspector
 from rest_framework.serializers import ListSerializer, SerializerMetaclass, BaseSerializer
@@ -122,6 +123,7 @@ class APISpecDRF(APISpec, APISpecDRFBuilder):
         self.version = version
         self.preamble = preamble
         title = kwargs.pop('title', '{version} API Docs'.format(version=version))
+        self.include_oauth2_security = kwargs.pop('include_oauth2_security', False)
         super(APISpecDRF, self).__init__(title, version, *args, **kwargs)
         self.scrape_serializers()
         self.scrape_endpoints()
@@ -132,30 +134,28 @@ class APISpecDRF(APISpec, APISpecDRFBuilder):
         self._definitions = OrderedDict([(k, self._definitions[k]) for k in sorted(self._definitions.keys())])
         ret = super(APISpecDRF, self).to_dict()
 
-        scope_descriptions = getattr(settings, 'OAUTH2_PROVIDER', {}).get('SCOPES', {})
-        excluded_scopes = getattr(settings, 'API_DOCS_EXCLUDED_SCOPES', [])
-        filtered_scopes = {k: v for k,v in scope_descriptions.items() if k not in excluded_scopes}
-        # ret['securityDefinitions'] = {
-        #     'oauth2': {
-        #         "type": "oauth2",
-        #         "flow": "authorizationCode",
-        #         "authorizationUrl": reverse('docs_authorize_redirect'),
-        #         "tokenUrl": reverse("oauth2_provider:token"),
-        #         "scopes": OrderedDict([
-        #             (s, filtered_scopes.get(s,s)) for s in self.scrape_endpoints_for_scopes()
-        #         ])
-        #     }
-        #         "name": "Authorization",
-        #         "in": "header"
-        #     },
-        # }
-        # ret['security'] = [
-        #     {
-        #         'api_key': [],
-        #         'oauth2': [],
-        #     }
-        # ]
-        ret['security'] = []
+        if self.include_oauth2_security:
+            scope_descriptions = getattr(settings, 'OAUTH2_PROVIDER', {}).get('SCOPES', {})
+            excluded_scopes = getattr(settings, 'API_DOCS_EXCLUDED_SCOPES', [])
+            filtered_scopes = {k: v for k,v in scope_descriptions.items() if k not in excluded_scopes}
+            ret['securityDefinitions'] = {
+                'oauth2': {
+                    "type": "oauth2",
+                    "flow": "authorizationCode",
+                    "authorizationUrl": reverse('docs_authorize_redirect'),
+                    "tokenUrl": reverse("oauth2_provider:token"),
+                    "scopes": OrderedDict([
+                        (s, filtered_scopes.get(s,s)) for s in self.scrape_endpoints_for_scopes()
+                    ])
+                }
+            }
+            ret['security'] = [
+                {
+                    'oauth2': [],
+                }
+            ]
+        else:
+            ret['security'] = []
         return ret
 
     def scrape_serializers(self):

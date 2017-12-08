@@ -15,17 +15,23 @@ class Command(BaseCommand):
         parser.add_argument('--preamble', nargs='?',
             help='Inject GitHub-flavored Markdown from this file into the auto-generated swagger spec'
         )
+        parser.add_argument('--include-oauth2-security', default=False)
         parser.add_argument('versions', nargs='*')
 
     def handle(self, *args, **options):
         versions = options.get('versions')
         preamble_path = options.get('preamble')
+        include_oauth2_security = options.get('include_oauth2_security')
 
         if len(versions) < 1:
             versions = ['v1']
 
         for version in versions:
             output_path = os.path.realpath(options['output'].format(version=version))
+
+            dirname = os.path.dirname(output_path)
+            if not os.path.exists(dirname):
+                os.makedirs(output_path)
             preamble = None
 
             if preamble_path:
@@ -35,7 +41,7 @@ class Command(BaseCommand):
             with open(output_path, 'w') as spec_file:
                 if options['verbosity'] > 0:
                     self.stdout.write("Generating '{}' spec in '{}'".format(version, output_path))
-                spec = APISpecDRF(version=version, preamble=preamble)
+                spec = APISpecDRF(version=version, preamble=preamble, include_oauth2_security=include_oauth2_security)
                 spec.write_to(spec_file)
 
 
