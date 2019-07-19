@@ -11,7 +11,7 @@ from django.apps import apps
 from django.conf import settings
 from django.urls import reverse
 from rest_framework.fields import Field
-from rest_framework.schemas import EndpointInspector
+from rest_framework.schemas.generators import EndpointEnumerator
 from rest_framework.serializers import ListSerializer, SerializerMetaclass, BaseSerializer
 
 
@@ -206,7 +206,7 @@ class APISpecDRF(APISpec, APISpecDRFBuilder):
         """
         Iterate over the registered API endpoints output all the scopes
         """
-        inspector = EndpointInspector()
+        inspector = EndpointEnumerator()
         all_scopes = set()
         for path, http_method, func in inspector.get_api_endpoints():
             all_scopes |= set(self.valid_scopes_for_view(func.cls, method=http_method))
@@ -217,7 +217,7 @@ class APISpecDRF(APISpec, APISpecDRFBuilder):
         """
         Iterate over the registered API endpoints for this version and generate path specs
         """
-        inspector = EndpointInspector()
+        inspector = EndpointEnumerator()
         for path, http_method, func in inspector.get_api_endpoints():
             http_method = http_method.lower()
 
@@ -267,8 +267,3 @@ class APISpecDRF(APISpec, APISpecDRFBuilder):
 
     def write_to(self, outfile):
         outfile.write(json.dumps(self.to_dict(), indent=4))
-
-
-
-
-
