@@ -11,7 +11,10 @@ from django.apps import apps
 from django.conf import settings
 from django.urls import reverse
 from rest_framework.fields import Field
-from rest_framework.schemas.generators import EndpointEnumerator
+try:
+    from rest_framework.schemas.generators import EndpointEnumerator
+except ImportError:
+    from rest_framework.schemas import EndpointInspector as EndpointEnumerator
 from rest_framework.serializers import ListSerializer, SerializerMetaclass, BaseSerializer
 
 
