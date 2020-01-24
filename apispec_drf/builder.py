@@ -1,5 +1,5 @@
 # encoding: utf-8
-from __future__ import unicode_literals
+
 
 import json
 import re
@@ -33,7 +33,7 @@ class APISpecDRFBuilder(object):
 
     @classmethod
     def get_required_properties(cls, serializer):
-        return [field_name for field_name, field in serializer.get_fields().items() if field.required]
+        return [field_name for field_name, field in list(serializer.get_fields().items()) if field.required]
 
     @classmethod
     def get_serializer_properties(cls, serializer, include_read_only=True, include_write_only=True):
@@ -41,7 +41,7 @@ class APISpecDRFBuilder(object):
 
         return OrderedDict([
             (field_name, cls.get_field_property(field))
-            for field_name, field in serializer.get_fields().items()
+            for field_name, field in list(serializer.get_fields().items())
             if (not field.read_only or include_read_only) and (not field.write_only or include_write_only)
         ])
 
@@ -106,7 +106,7 @@ class APISpecDRFBuilder(object):
         """
         merged = base.copy()
 
-        for key, override_value in override.items():
+        for key, override_value in list(override.items()):
             if key not in base:
                 merged[key] = override_value
             else:
@@ -140,7 +140,7 @@ class APISpecDRF(APISpec, APISpecDRFBuilder):
         if self.include_oauth2_security:
             scope_descriptions = getattr(settings, 'OAUTH2_PROVIDER', {}).get('SCOPES', {})
             excluded_scopes = getattr(settings, 'API_DOCS_EXCLUDED_SCOPES', [])
-            filtered_scopes = {k: v for k,v in scope_descriptions.items() if k not in excluded_scopes}
+            filtered_scopes = {k: v for k,v in list(scope_descriptions.items()) if k not in excluded_scopes}
             ret['securityDefinitions'] = {
                 'oauth2': {
                     "type": "oauth2",
