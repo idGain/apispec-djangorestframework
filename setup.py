@@ -3,7 +3,7 @@ from distutils.core import setup
 
 from setuptools import find_packages
 
-execfile(os.path.join(os.path.dirname(__file__), 'apispec_drf/version.py'))
+exec(compile(open(os.path.join(os.path.dirname(__file__), 'apispec_drf/version.py'), "rb").read(), os.path.join(os.path.dirname(__file__), 'apispec_drf/version.py'), 'exec'))
 
 
 setup(
