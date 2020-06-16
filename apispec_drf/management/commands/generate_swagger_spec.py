@@ -16,15 +16,12 @@ class Command(BaseCommand):
             help='Inject GitHub-flavored Markdown from this file into the auto-generated swagger spec'
         )
         parser.add_argument('--include-oauth2-security', default=False)
-        parser.add_argument('versions', nargs='*')
+        parser.add_argument('--versions', nargs='*', default=['v1'])
 
     def handle(self, *args, **options):
         versions = options.get('versions')
         preamble_path = options.get('preamble')
         include_oauth2_security = options.get('include_oauth2_security')
-
-        if len(versions) < 1:
-            versions = ['v1']
 
         for version in versions:
             output_path = os.path.realpath(options['output'].format(version=version))
