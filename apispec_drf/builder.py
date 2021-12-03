@@ -127,7 +127,8 @@ class APISpecDRF(APISpec, APISpecDRFBuilder):
         self.preamble = preamble
         title = kwargs.pop('title', '{version} API Docs'.format(version=version))
         self.include_oauth2_security = kwargs.pop('include_oauth2_security', False)
-        super(APISpecDRF, self).__init__(title, version, *args, **kwargs)
+        openapi_version=kwargs.pop('openapi_version', '3.0.2')
+        super(APISpecDRF, self).__init__(title, version,openapi_version, *args, **kwargs)
         self.scrape_serializers()
         self.scrape_endpoints()
         self.info.update({"description": preamble})
